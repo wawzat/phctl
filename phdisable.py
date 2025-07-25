@@ -9,7 +9,7 @@ def get_config():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
     try:
-        # This is your API password, not a session ID
+        # This is your Pi-hole API app password, not a session ID
         password = config['auth']['app_passsword']
         url = config['pihole']['url']
         return password, url
@@ -66,17 +66,19 @@ def enable_pihole(sid, pihole_url):
             print(f"Response: {e.response.text}")
         sys.exit(1)
 
-
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(description="Control Pi-hole blocking.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-d', '--disable', type=int, metavar='MINUTES', help='Disable Pi-hole for MINUTES')
     group.add_argument('-e', '--enable', action='store_true', help='Re-enable Pi-hole blocking')
-    args = parser.parse_args()
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
     password, pihole_url = get_config()
     sid = get_sid(pihole_url, password)
     if not sid:
-        print("Failed to retrieve session ID. Check your password in config.ini.")
+        print("Failed to retrieve Pi-hole Session ID. Check your password in config.ini.")
         sys.exit(1)
     if args.disable is not None:
         if args.disable <= 0:
