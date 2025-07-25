@@ -9,16 +9,16 @@ def get_config():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
     try:
-        # This is your API password, not a session token
-        password = config['auth']['token']
+        # This is your API password, not a session ID
+        password = config['auth']['app_passsword']
         url = config['pihole']['url']
         return password, url
     except KeyError:
-        print('Error: config.ini missing required sections or keys ([auth] token, [pihole] url).')
+        print('Error: config.ini missing required sections or keys ([auth] app_password, [pihole] url).')
         sys.exit(1)
 
-def get_session_token(pihole_url, password):
-    """Authenticates with the Pi-hole API to get a session token."""
+def get_sid(pihole_url, password):
+    """Authenticates with the Pi-hole API to get a session ID."""
     api_url = pihole_url.rstrip('/') + '/api/auth'
     try:
         headers = {"Content-Type": "application/json"}
@@ -29,15 +29,15 @@ def get_session_token(pihole_url, password):
         if sid:
             return sid
     except requests.RequestException as e:
-        print(f"Error getting session token: {e}")
+        print(f"Error getting session ID: {e}")
         if e.response:
             print(f"Response: {e.response.text}")
         sys.exit(1)
 
-def disable_pihole(minutes, session_token, pihole_url):
+def disable_pihole(minutes, sid, pihole_url):
     seconds = minutes * 60
     api_url = pihole_url.rstrip('/') + '/api/dns/blocking'
-    headers = {"Content-Type": "application/json", "sid": session_token}
+    headers = {"Content-Type": "application/json", "sid": sid}
     payload = {
         "blocking": False,
         "timer": seconds
@@ -52,12 +52,10 @@ def disable_pihole(minutes, session_token, pihole_url):
             print(f"Response: {e.response.text}")
         sys.exit(1)
 
-def enable_pihole(session_token, pihole_url):
+def enable_pihole(sid, pihole_url):
     api_url = pihole_url.rstrip('/') + '/api/dns/blocking'
-    headers = {"Content-Type": "application/json", "sid": session_token}
-    payload = {
-        "blocking": True
-    }
+    headers = {"Content-Type": "application/json", "sid": sid}
+    payload = {"blocking": True}
     try:
         response = requests.post(api_url, json=payload, headers=headers, verify=False)
         response.raise_for_status()
@@ -75,21 +73,18 @@ def main():
     group.add_argument('-d', '--disable', type=int, metavar='MINUTES', help='Disable Pi-hole for MINUTES')
     group.add_argument('-e', '--enable', action='store_true', help='Re-enable Pi-hole blocking')
     args = parser.parse_args()
-
     password, pihole_url = get_config()
-    session_token = get_session_token(pihole_url, password)
-
-    if not session_token:
-        print("Failed to retrieve session token. Check your password in config.ini.")
+    sid = get_sid(pihole_url, password)
+    if not sid:
+        print("Failed to retrieve session ID. Check your password in config.ini.")
         sys.exit(1)
-
     if args.disable is not None:
         if args.disable <= 0:
             print("Minutes must be a positive integer.")
             sys.exit(1)
-        disable_pihole(args.disable, session_token, pihole_url)
+        disable_pihole(args.disable, sid, pihole_url)
     elif args.enable:
-        enable_pihole(session_token, pihole_url)
+        enable_pihole(sid, pihole_url)
 
 if __name__ == '__main__':
     main()
