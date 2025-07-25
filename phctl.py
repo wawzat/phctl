@@ -4,7 +4,7 @@ import requests
 import argparse
 
 """
-phdisable.py
+phctl.py
 
 A command-line utility to control Pi-hole DNS blocking via its API. This script allows you to temporarily disable or re-enable Pi-hole blocking by authenticating with the Pi-hole API using credentials stored in a config file.
 
@@ -15,8 +15,8 @@ Features:
 - Handles authentication and session management
 
 Usage:
-    python phdisable.py --disable MINUTES
-    python phdisable.py --enable
+    python phctl.py --disable MINUTES
+    python phctl.py --enable
 """
 
 CONFIG_FILE = 'config.ini'
