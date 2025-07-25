@@ -1,6 +1,6 @@
-# phdisable
+# phctl
  
- # phdisable
+ # phctl
  
  A simple Python script to control Pi-hole DNS blocking via its API.
  
@@ -33,13 +33,13 @@
  
  - **Disable Pi-hole for N minutes:**
    ```powershell
-   python phdisable.py --disable N
+   python phctl.py --disable N
    ```
    Replace `N` with the number of minutes.
  
  - **Enable Pi-hole blocking:**
    ```powershell
-   python phdisable.py --enable
+   python phctl.py --enable
    ```
  
  ## Arguments
@@ -48,8 +48,8 @@
  
  ## Example
  ```powershell
- python phdisable.py --disable 10
- python phdisable.py --enable
+ python phctl.py --disable 10
+ python phctl.py --enable
  ```
  
  ## Notes
@@ -61,24 +61,18 @@
  See `LICENSE` for details.
 ## Features
 - Reads configuration from `config.ini`
-- Main script: `phdisable.py`
+- Main script: `phctl.py`
 - Easy setup with `requirements.txt`
 
 ## Installation
 1. Clone the repository:
    ```sh
-   git clone https://github.com/wawzat/phdisable.git
+   git clone https://github.com/wawzat/phctl.git
    ```
 2. Install dependencies:
    ```sh
    pip install -r requirements.txt
    ```
-
-## Usage
-Run the main script:
-```sh
-python phdisable.py
-```
 
 ## Configuration
 Edit the `config.ini` file to customize the behavior of the script. This file is ignored by git for security and privacy.
