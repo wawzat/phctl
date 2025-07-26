@@ -9,10 +9,9 @@ phctl.py
 A command-line utility to control Pi-hole DNS blocking via its API. This script allows you to temporarily disable or re-enable Pi-hole blocking by authenticating with the Pi-hole API using credentials stored in a config file.
 
 Features:
-- Disable Pi-hole for a specified number of minutes
+- Disable Pi-hole for a specified number of minutes (default is 5 minutes)
 - Re-enable Pi-hole blocking
 - Reads configuration from config.ini
-- Handles authentication and session management
 
 Usage:
     python phctl.py --disable MINUTES
@@ -28,7 +27,6 @@ def get_config():
         tuple: (password, url) from the config file.
     Exits if required keys are missing.
     """
-
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
     try:
@@ -120,7 +118,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Control Pi-hole blocking.")
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-d', '--disable', type=int, metavar='MINUTES', help='Disable Pi-hole for MINUTES')
+    group.add_argument('-d', '--disable', type=int, nargs='?', const=5, metavar='MINUTES', help='Disable Pi-hole for MINUTES (default: 5)')
     group.add_argument('-e', '--enable', action='store_true', help='Re-enable Pi-hole blocking')
     return parser.parse_args()
 
@@ -134,13 +132,14 @@ def main():
     if not sid:
         print("Failed to retrieve Pi-hole Session ID. Check your password in config.ini.")
         sys.exit(1)
-    if args.disable is not None:
-        if args.disable <= 0:
+    if args.enable:
+        enable_pihole(sid, pihole_url)
+    elif args.disable is not None:
+        minutes = args.disable if args.disable is not None else 5
+        if minutes <= 0:
             print("Minutes must be a positive integer.")
             sys.exit(1)
-        disable_pihole(args.disable, sid, pihole_url)
-    elif args.enable:
-        enable_pihole(sid, pihole_url)
+        disable_pihole(minutes, sid, pihole_url)
 
 if __name__ == '__main__':
     main()
