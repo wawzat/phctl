@@ -1,21 +1,19 @@
 
-# phctl & dnsflip.ps1
+# phctl & dnsflip
 
-This project provides two tools to temporarily bypass or re-enable Pi-hole DNS blocking on your network, each using a different approach:
+This project provides two tools to temporarily bypass or re-enable Pi-hole DNS blocking, each using a different approach:
 
 ---
 
-## Overview: Two Ways to Control Pi-hole
+## Overview: Two Ways to Control Pi-hole blocking
 
 - **phctl.py**: A Python script that interacts directly with the Pi-hole API to disable or enable DNS blocking for a set period. It automatically re-enables blocking after the specified time.
-- **dnsflip.ps1**: A PowerShell script that toggles your Windows network interface DNS settings between your Pi-hole server and public DNS (Google DNS). This script must be run manually each time you want to switch DNS servers.
+- **dnsflip.ps1**: A PowerShell script that toggles your Windows network interface DNS settings between your Pi-hole server and public DNS (Google DNS). This script must be run manually each time you want to switch DNS servers and will not revert back to Pi-hole blocking automatically.
 
 **Both tools accomplish the same goal—temporarily bypassing Pi-hole filtering—but in different ways:**
 
-- `phctl.py` disables Pi-hole at the source (the Pi-hole server) and can automatically re-enable blocking after a timer.
-- `dnsflip.ps1` changes your local computer's DNS settings to bypass Pi-hole, but **does not automatically revert**—you must run the script again to switch back to Pi-hole DNS.
-
-> **Warning:** If you use `dnsflip.ps1` to switch to public DNS, you must manually run the script again to restore your DNS settings to use Pi-hole. Unlike `phctl.py`, there is no automatic reset.
+- `phctl.py` disables Pi-hole at the source (the Pi-hole server) and will automatically re-enable blocking after a timer.
+- `dnsflip.ps1` changes your local computer's DNS settings to bypass Pi-hole, but **does not automatically revert**—you must run the script again to switch back to Pi-hole DNS. An advantage to this approach is blocking is disabled only for the local machine and not for the entire network.
 
 ---
 
@@ -85,7 +83,6 @@ python phctl.py --enable
 - Checks if running as Administrator
 - Detects current DNS configuration for the specified interface
 - Prompts to switch between Pi-hole and public DNS servers
-- Easy to customize for your network
 
 ### Usage
 1. Edit `$interfaceAlias`, `$piHoleAddress`, and `$publicDNS` at the top of the script to match your environment.
